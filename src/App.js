@@ -9,8 +9,8 @@ import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
 import './App.css';
 import { SignInButton, SignOutButton, Authenticated, Unauthenticated, AuthProviderAppWrapper } from "./MsalSignin";
-import { newGame, guess, analyze, calculatePattern, topGuesses, COLORS, GAME_STATE } from "./gameEngine.js"
-import { possibleAnswers } from './wordleWords.js';
+import { newGame, guess, analyze, topGuesses, COLORS, GAME_STATE } from "./gameEngine.js"
+import { allowedGuesses, possibleAnswers } from './wordleWords.js';
 
 // Configuration variables
 const APP_NAME = "Wordle Analyzer";
@@ -43,34 +43,13 @@ Modal.setAppElement('#root');   // For accessibility
  */
 function SignInHeader({logo, appName}) {
   return (
-    <div className="App-header">
+    <div className="Signin-header">
       <img src={logo} alt="logo" className="App-logo" />
       <h1>{appName}</h1>
       <div className="Sign-out-button">
         <SignInButton />
       </div>
     </div>      
-  );
-}
-
-/**
- * AppHeader: A header for the app, with app logo, name, and a sign-out button for the current user
- * 
- * @param {string} logo - The URL of the app logo
- * @param {string} appName - The name of the app
- * 
- * @returns {JSX.Element} The app header
- */
-// Render the app header; a logo, the app name, and either current user + sign-out button, or sign-in option
-function AppHeader({logo, appName}) {
-  return (
-      <div className="App-header">
-        <img src={logo} alt="logo" className="App-logo" />
-        <h1>{appName}</h1>
-        <div className="Sign-out-button">
-          <SignOutButton />
-        </div>
-      </div>
   );
 }
 
@@ -89,17 +68,20 @@ function HelpModal({modalIsOpen, onModalClose}) {
     >
       <button className="Help-close" onClick={onModalClose}>x</button>
       <div>
-        <h2 align="Center">About wordle analyzer</h2>
+        <h2 align="Center">About wordle analyzer v1.0</h2>
         <p>This app will help you learn to optimize your wordle play. A few key concepts:</p>
         <ol>
-          <li>Wordle starts with a random word from a list of {possibleAnswers.length} <i>possible answers</i>,
-            which are common words that are never plurals.</li>
-          <li>The set of possible answers shrinks as you make guesses and get back colors.</li>
-          <li>When there are many possible answers left, pick a word that eliminates, on average, the most remaining possible answers.
-            For example, if the remaining answers are CRANE, CRANK, CRAVE, CRAMP, and CRAZY, then guessing CRAVE is optimal because it is either correct or will result in 1 possible answer left.
-          </li>
+          <li>Wordle starts with a random word from a fixed list of possible answers, which are common words and never plurals.</li>
+          <li>The set of remaining possible answers shrinks as you make guesses and get back colors; green = right letter right spot, yellow=right letter wrong spot, grey=wrong letter.</li>
+          <li>An optimal guess will, on average, shrink the number of remaining answers the most.
+            For example, if the remaining answers are [CRANE, CRANK, CRAVE, CRAMP, and CRAZY], then CRAVE as it will either be right or there will only be 1 remaining answer left.</li>
         </ol>
-        <p>You can toggle the Hints/No Hints button. No Hints is like normal wordle. Hints are progressive.</p>
+        <p>There are three modes of play</p>
+        <ul>
+          <li><b>No Hints</b> - Normal wordle play</li>
+          <li><b>Hints</b> - After each guess, you can get hints and the chance for a redo</li>
+          <li><b>Cheat</b> - Assists in an external online puzzle; you enter your guess and the colors you got back and get hints</li>
+        </ul>
       </div>
     </Modal>
   );
@@ -116,7 +98,12 @@ function HintsModal({modalIsOpen, setModalIsOpen, game, word, onSubmit}) {
   const gameUpdate = guess(game, word);
   const analysis = analyze(word, game.remainingAnswers)
   const remainingAnswers = game.remainingAnswers ? game.remainingAnswers : possibleAnswers;
-  const validGuess = remainingAnswers.includes(word.toLowerCase());
+  const validGuess = possibleAnswers.includes(word.toLowerCase()) || allowedGuesses.includes(word.toLowerCase());
+  const possibleAnswer = remainingAnswers.includes(word.toLowerCase());
+  const helpfulGuess = analysis.expectedRemaining < remainingAnswers.length;
+  const oneRemaining = remainingAnswers.length === 1;
+  const isSolution = oneRemaining && remainingAnswers[0] === word.toLowerCase();
+
   
   return (
     <Modal
@@ -129,14 +116,18 @@ function HintsModal({modalIsOpen, setModalIsOpen, game, word, onSubmit}) {
       <div>
         <h2 align="Center">Hints</h2>
         <button onClick={() => setMaxHints(!maxHints)}>{maxHints? "Less" : "More"} hints</button>
-        <p>Your guess {word} {validGuess ? "is" : "is not"} one of the 
-          remaining {remainingAnswers.length} possible answers.</p>
-        {validGuess && <p>That guess will, on average, reduce the remaining answers to {analysis.expectedRemaining} by
+        {!validGuess && <p>{word} is not a valid wordle guess. Try again.</p>}
+        {validGuess && oneRemaining && isSolution && <p>There was only one remaining solution, and you guessed it!</p>}
+        {validGuess && oneRemaining && !isSolution && <p>There was only one remaining solution, and {word} wasn't it.</p>}
+        {validGuess && !oneRemaining && <p>Your guess {word} {possibleAnswer ? "is" : "is not"}
+        {" one of the remaining " + remainingAnswers.length + " possible answers"}.</p>}
+        {validGuess && !oneRemaining && helpfulGuess && <p>It will, on average, reduce the remaining answers to {analysis.expectedRemaining} by
           creating {analysis.buckets} color buckets, the largest having {analysis.largestBucket} words.</p>}
-        {!validGuess && <p>Try a different word as this guess doesn't help.</p>}
-        {maxHints &&
+        {validGuess && !oneRemaining && !helpfulGuess && <p>And it won't eliminate any of the remaining possible answers,
+          so you really should try a different guess.</p>}
+        {maxHints && !isSolution &&
           <div>
-            <p>Recommended words, expected remaining after guessing:</p>
+            <p>Top guesses based on expected remaining answers:</p>
             <select style={{ fontFamily: 'monospace' }}>
               {Array.from(topGuesses(game.remainingAnswers)).map(([word, expectedRemaining]) => (
                 <option key={word}>{word.toUpperCase()}, {expectedRemaining}</option>
@@ -146,8 +137,8 @@ function HintsModal({modalIsOpen, setModalIsOpen, game, word, onSubmit}) {
         }
         <br />
 
-        <button style={{ marginRight: "10px" }} onClick={() => onSubmit(gameUpdate)}>Submit {word}</button>
-        <button onClick={() => setModalIsOpen(false)}>Let me change my guess</button>
+        <button style={{ marginRight: "10px" }} onClick={() => setModalIsOpen(false)}>Change my guess</button>
+        {validGuess && <button onClick={() => onSubmit(gameUpdate)}>Submit {word}</button>}
       </div>
     </Modal>
   );
@@ -319,18 +310,20 @@ function Grid({ guessed, word, shake }) {
  * @returns {JSX.Element} App component
  */
 function Wordle() {
-  const [game, setGame] = useState(newGame());            // The current game state
-  const [gameMode, setGameMode] = useState(GAME_MODES.HINTS); // Toggles between hints, no hints, and eventually cheat modes
+  const initialGameMode = localStorage.getItem("gameMode") || GAME_MODES.HINTS;
+  const [game, setGame] = useState(newGame());                // The current game state
+  const [gameMode, setGameMode] = useState(initialGameMode);  // Toggles between hints, no hints, and cheat modes
   const [helpModalIsOpen, setHelpModalIsOpen] = useState(false); // Toggles if the help modal dialog is open or not
   const [hintsModalIsOpen, setHintsModalIsOpen] = useState(false); // Toggles if the hints modal dialog is open or not
   const [keyboardRef, setKeyboardRef] = useState(null);     // The keyboard component reference
   const [num, setNum] = useState(0);                        // A dummy variable to force a re-render
 
-  const word = keyboardRef ? keyboardRef.getInput() : "";  // The current word being guessed
+  // As gameMode is toggled, persist to local storage to remember the user's preference for next time
+  useEffect(() => {
+    localStorage.setItem("gameMode", gameMode);
+  }, [gameMode]);
 
-  console.log("#Remaining words: ", game.remainingAnswers?.length);
-  console.log("Word list: " + game.remainingAnswers?.slice(0, 50).join(" "))
-  console.log(calculatePattern("slate", "oasis"));
+  const word = keyboardRef ? keyboardRef.getInput() : "";  // The current word being guessed
 
 
   // Calculate guessed button colors to pass to the virtual keyboard
@@ -392,15 +385,15 @@ function Wordle() {
   return (
     <div className="App">
       <Authenticated>
-        <AppHeader logo={LOGO} appName={APP_NAME} />
-        <div className="Horizontal">
-          <button onClick={() => startNewGame()}>New Game</button>
-          <select value={gameMode} onChange={event => setGameMode(event.target.value)}>
+        <div className="App-header">
+          <button title="Start a new game" onClick={() => startNewGame()}>New Game</button>
+          <select title="Toggle play mode - see help for details" value={gameMode} onChange={event => setGameMode(event.target.value)}>
             <option value={GAME_MODES.HINTS}>{GAME_MODES.HINTS}</option>
             <option value={GAME_MODES.NO_HINTS}>{GAME_MODES.NO_HINTS}</option>
             <option value={GAME_MODES.CHEAT} disabled>{GAME_MODES.CHEAT}</option>
           </select>
-          <button onClick={() => setHelpModalIsOpen(true)}>Help</button>
+          <button title="Learn about the wordle analyzer" onClick={() => setHelpModalIsOpen(true)}>Help</button>
+          <SignOutButton />
         </div>
         <p className="error-message">{game.error || ""}</p>
         <Grid guessed={game.guesses} word={word} shake={game.error}/>

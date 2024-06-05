@@ -1,7 +1,7 @@
 :root {
   --main-bg-color: #090909;
   --main-text-color: #FFFFFF;
-  --min-screen-width: 360px;
+  --min-screen-width: 380px;
   --green: #007700;
   --yellow: #C0C000;
   --grey: #303030;
@@ -20,7 +20,9 @@
   min-width: var(--min-screen-width);
 }
 
-.Horizontal {
+.App-header {
+  padding-top: 10px;
+  padding-bottom: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -47,7 +49,7 @@
   cursor: pointer;
 }
 
-.App-header {
+.Signin-header {
   display: flex;
   justify-content: center;
   align-items: center;

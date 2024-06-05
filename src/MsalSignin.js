@@ -71,14 +71,14 @@ const msalInstance = new PublicClientApplication ({
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 const loginRequest = {
-    scopes: process.env.LOGIN_SCOPES,
+    scopes: JSON.parse(process.env.REACT_APP_LOGIN_SCOPES),
     prompt: "select_account"
 };
 
 /*
  * Scopes needed for the web APIs service
  */
-const apiScope = process.env.LOGIN_SCOPES; // process.env.API_SCOPES;
+const apiScope = JSON.parse(process.env.REACT_APP_API_SCOPES);
 
 /**
  * Renders a sign in button for user login with MSAL
@@ -114,7 +114,6 @@ export const SignOutButton = () => {
                 account: accounts[0]
             }).then(response => {
                 setUser(response.account.name);
-                console.log (user);
             }).catch(e => {
                 console.log(e);
             });
@@ -123,7 +122,6 @@ export const SignOutButton = () => {
 
     function handleSelect(event) {
         const option = event.target.value;
-        console.log("In handleSelect with option: ", option);
         if (option === "Sign out") {
             instance.logoutPopup().catch(e => {             // Alternatively, use logoutRedirect
             console.error(e);

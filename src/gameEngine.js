@@ -31,7 +31,7 @@ export const GAME_STATE = {
  *      The error string will be null if there was no error on the last guess.
  */
 export function newGame() {
-    const solution = "basin"; // possibleAnswers[Math.floor(Math.random() * possibleAnswers.length)];
+    const solution = possibleAnswers[Math.floor(Math.random() * possibleAnswers.length)];
     return {
         solution: solution,                 // The solution word
         guesses: [],                        // A list of (guess, colors) they have made so far
@@ -56,7 +56,6 @@ function pruneList(remainingAnswers, word, colors) {
         return remainingAnswers; // Should never happen
     }
 
-    console.log(typeof remainingAnswers, remainingAnswers.length, remainingAnswers.slice(0, 10));
     // Each remaining answer can only be a possible answer if guessing word against it would return the colors
     // So filter to just the subset of remainingAnswers for which calculatePattern(word, answser) === colors
     return remainingAnswers.filter(answer => {
@@ -117,6 +116,7 @@ export function analyze(guess, remainingAnswers) {
     if (!remainingAnswers) {
         remainingAnswers = possibleAnswers;
     }
+
     const buckets = new Map();
     remainingAnswers.forEach(answer => {
         const pattern = calculatePattern(guess, answer).join('');
@@ -134,6 +134,10 @@ export function analyze(guess, remainingAnswers) {
         if (count > largestBucket)
             largestBucket = count;
     });
+    // Adjust for the fact that the guess might be correct, which would reduce the number of remaining answers by 1
+    if (remainingAnswers.includes(guess)) {
+        expectedRemaining -= 1/remainingAnswers.length;
+    }
     expectedRemaining = expectedRemaining.toFixed(1);
 
     return {expectedRemaining, buckets: buckets.size, largestBucket};
@@ -176,7 +180,6 @@ export function topGuesses(remainingAnswers) {
             ["least", "78.0"],
             ["crane", "78.7"]
         ]);
-        console.log("Precomputed answers: ", preComputed);
         return preComputed;
     }
 
@@ -192,7 +195,6 @@ export function topGuesses(remainingAnswers) {
     // Filter to a map containing just the top 10 guesses
     const top = new Map([...sorted.entries()].slice(0, 20));
 
-    console.log ("Top guesses: ", top);
     return top;
 }
 
