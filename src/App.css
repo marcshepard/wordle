@@ -1,0 +1,152 @@
+:root {
+  --main-bg-color: #090909;
+  --main-text-color: #FFFFFF;
+  --min-screen-width: 360px;
+  --green: #007700;
+  --yellow: #C0C000;
+  --grey: #303030;
+  --light-grey: #808080;
+}
+
+.App {
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--main-bg-color);
+  color: var(--main-text-color);
+  text-align: center;
+  padding-left: 5px;
+  padding-right: 5px;
+  min-width: var(--min-screen-width);
+}
+
+.Horizontal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.Help {
+  position: relative;
+  background-color: var(--main-bg-color);
+  color: var(--main-text-color);
+  width: 90vw;
+  padding: 10px;
+  margin: auto;
+}
+
+.Help-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: var(--main-text-color);
+  background-color: var(--main-bg-color);
+  font-size: 1.5em;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.App-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.App-logo {
+  position: absolute;
+  left: 5px;
+  height: 1.5em;
+  pointer-events: none;
+}
+
+.Sign-out-button {
+  position: absolute;
+  right: 5px;
+}
+
+.Keyboard {
+  margin: 0 auto;
+  width: var(--min-screen-width);
+}
+
+.react-simple-keyboard {
+  background-color: var(--main-bg-color);
+}
+
+.react-simple-keyboard .KB-default  {
+  background-color: var(--light-grey);
+  border: none;
+}
+
+.react-simple-keyboard .KB-green {
+  background-color: var(--green);
+  border: none;
+}
+
+.react-simple-keyboard .KB-yellow {
+  background-color: var(--yellow);
+  border: none;
+}
+
+.react-simple-keyboard .KB-grey {
+  background-color: var(--grey);
+  border: none;
+}
+
+.Centered {
+  display: flex;
+  justify-content: center;
+}
+
+.Letter-table {
+  border-spacing: 5px;
+}
+
+.Letter-tile {
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  vertical-align: middle;
+  border-spacing: 5px;
+}
+
+.Green-background {
+  background-color: var(--green);
+}
+
+.Yellow-background {
+  background-color: var(--yellow);
+}
+
+.Grey-background {
+  background-color: var(--grey);
+}
+
+.Empty-background {
+  background-color: var(--main-bg-color);
+  border: 1px solid #808080;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0px); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(0px); }
+  75% { transform: translateX(5px); }
+  100% { transform: translateX(0px); }
+}
+
+.Shake {
+  animation: shake .2s 2;
+}
+
+.error-message {
+  z-index: 1;
+  min-height: 15px;
+  font-size: 12px;
+  text-align: center;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  color: white
+}
