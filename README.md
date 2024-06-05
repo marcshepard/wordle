@@ -7,7 +7,7 @@ It has three modes of play:
 2) Hints - evaluates your guess and optionally gives suggestions each time you enter a word
 3) Cheat - let's you enter words and colors from online play and gives Hints on what to do next
 
-It is hosted on github pages if you want to give it a try.
+It is hosted on github pages if you want to give it a try. I used these steps: https://github.com/gitname/react-gh-pages
 
 I originally wrote this in Java to learn optimal wordle strategies (the original was written before wordlebot was created), and to practice writing UI code in Java. This is a re-write in react to help me learn react, and also it is better as a web app as it is more easily accessible.
 
