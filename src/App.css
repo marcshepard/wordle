@@ -103,6 +103,7 @@
 
 .Letter-table {
   border-spacing: 5px;
+  user-select: none;
 }
 
 .Letter-tile {

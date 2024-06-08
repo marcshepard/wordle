@@ -24,18 +24,18 @@ export const GAME_STATE = {
 /**
  * Start a new game.
  * 
- * @returns a json object containing the game state {solution: string, guesses: [(word: string, colors: string[])], state: string, error: string}
- *      solution: The solution word
- *      guesses: An array of guessed words and their COLORS
- *      state: The current GAME_STATE
- *      The error string will be null if there was no error on the last guess.
+ * @returns a json object containing the game state:
+ *      {string} solution - The solution word
+ *      {Array<string, COLOR[]> guesses - An array of guessed words and their COLORS
+ *      {string} state - The current GAME_STATE
+ *      {string error - The error string will be null if there was no error on the last guess.
  */
 export function newGame() {
     const solution = possibleAnswers[Math.floor(Math.random() * possibleAnswers.length)];
     return {
         solution: solution,                 // The solution word
         guesses: [],                        // A list of (guess, colors) they have made so far
-        remainingAnswers: null,             // The number of possible answers remaining - null means "all of them", so we don't copy the big list
+        remainingAnswers: possibleAnswers,  // The number of possible answers remaining
         state: GAME_STATE.PLAYING,          // The current state of the game; one of playing, won, lost
         error: null                         // An error message, if any, from the last guess
     };
@@ -44,11 +44,11 @@ export function newGame() {
 /**
  * Prune a list of remaining answers based on a guess and the colors returned for that guess
  * 
- * @param {*} remainingAnswers - The list of possible answers before the guess
- * @param {*} word - The word guessed
- * @param {*} colors - The colors returned for the guess
+ * @param {string[]} remainingAnswers - The list of possible answers before the guess
+ * @param {string} word - The word guessed
+ * @param {COLORS[]} colors - The colors returned for the guess
  * 
- * @returns {*} - The list of possible answers which would have returned the same colors
+ * @returns {string[]} - The list of possible answers which would have returned the same colors
  */
 function pruneList(remainingAnswers, word, colors) {
     if (remainingAnswers === null || remainingAnswers.length === 0) {
@@ -103,19 +103,15 @@ export function guess(game, word) {
 /**
  * Analyze a guess.
  * 
- * @param {string} [guess] - A guessed word.
- * @param {string[]} [remainingAnswers] - An array of the remaining possible answers.
+ * @param {string} guess - A guessed word.
+ * @param {string[]} remainingAnswers - An array of the remaining possible answers.
  * 
  * @returns {number} expectedRemaining - The expected number of remaining answers after the guess.
  * @returns {number} buckets - The number of buckets the guess will produce for the possibleAnswers.
  * @returns {number} largestBucket - The size of the largest bucket.
  */
-
 export function analyze(guess, remainingAnswers) {
     guess = guess.toLowerCase();
-    if (!remainingAnswers) {
-        remainingAnswers = possibleAnswers;
-    }
 
     const buckets = new Map();
     remainingAnswers.forEach(answer => {
@@ -138,9 +134,30 @@ export function analyze(guess, remainingAnswers) {
     if (remainingAnswers.includes(guess)) {
         expectedRemaining -= 1/remainingAnswers.length;
     }
-    expectedRemaining = expectedRemaining.toFixed(1);
+    expectedRemaining = expectedRemaining.toFixed(2);
 
     return {expectedRemaining, buckets: buckets.size, largestBucket};
+}
+
+/**
+ * Analyze a cheat guess.
+ * 
+ * @param {string} guess - A guessed word.
+ * @param {COLORS[]} colors - The colors that would be returned for the guess.
+ * @param {string[]} remainingAnswers - An array of the remaining possible answers.
+ * 
+ * @returns {Array<string>} remaining - The updated set of remaining answers.
+ */
+export function analyzeCheat (guess, colors, remainingAnswers) {
+    guess = guess.toLowerCase();
+    const matches = [];
+    remainingAnswers.forEach(answer => {
+        const pattern = calculatePattern(guess, answer);
+        if (colors.every((color, index) => color === pattern[index])) {
+            matches.push(answer);
+        }
+    });
+    return matches;
 }
 
 /**
@@ -154,7 +171,6 @@ export function analyze(guess, remainingAnswers) {
  * @returns {number} guess.nuckets - The number of buckets.
  * @returns {number} guess.largestBucket - The size of the largest bucket.
  */
-
 export function topGuesses(remainingAnswers) {
     // Precomputed answers for the opening guess
     if (remainingAnswers === null || remainingAnswers.length === possibleAnswers.length) {
@@ -204,7 +220,7 @@ export function topGuesses(remainingAnswers) {
  * @param {string} guessed - The guessed word.
  * @param {string} answer - The answer word.
  * 
- * @returns {string} - The pattern of the guess.
+ * @returns {string[]} - The pattern of the guess.
  */
 export function calculatePattern(guess, answer) {
     const WORD_SIZE = guess.length;
@@ -261,6 +277,11 @@ export function calculatePattern(guess, answer) {
 
 /**
  * Count the occurrences of a letter in a word.
+ * 
+ * @param {string} answer - The word to search.
+ * @param {string} letter - The letter to search for.
+ * 
+ * @returns {number} - The number of occurrences of the letter in the word.
  */
 function countOccurrences(answer, letter) {
     return answer.split(letter).length - 1;
