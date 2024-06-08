@@ -321,7 +321,6 @@ function MobileKeyboard({onChange, onEnter, guessedButtons, setKeyboardRef}) {
         buttonTheme={buttonTheme}
         onKeyPress={handleKeyPress}
         onChange={handleChange}
-        stopMouseDownPropagation={true}
       />
     </div>
   );
@@ -453,7 +452,9 @@ function Wordle() {
   function handleWordEntered() {
     // In Hints mode, the hint modal will let the user decide if they want to update the game or not
     if (gameMode === GAME_MODES.HINTS) {
-      setHintsModalIsOpen(true);
+      // On Android, the model gets immediately closed. Trying delay opening as workaround in case the issue
+      // is the virtual keyboard sending additional events after the enter key is pressed.
+      setTimeout(() => setHintsModalIsOpen(true), 200);
       return;
     }
 
