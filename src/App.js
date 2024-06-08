@@ -187,7 +187,7 @@ function HintsModal({modalIsOpen, onModalClose, game, word, onSubmit}) {
           so you really should try a different guess.</p>}
         {maxHints && !isSolution &&
           <div>
-            <p>Top guesses based on expected remaining answers:</p>
+            <p>Top guesses based on expected remaining answers after the guess:</p>
             <select style={{ fontFamily: 'monospace' }}>
               {Array.from(topGuesses(game.remainingAnswers)).map(([word, expectedRemaining]) => (
                 <option key={word}>{word.toUpperCase()}, {expectedRemaining}</option>
@@ -321,6 +321,7 @@ function MobileKeyboard({onChange, onEnter, guessedButtons, setKeyboardRef}) {
         buttonTheme={buttonTheme}
         onKeyPress={handleKeyPress}
         onChange={handleChange}
+        stopMouseDownPropagation={true}
       />
     </div>
   );
