@@ -499,7 +499,8 @@ function Wordle() {
       gameUpdate.guesses = [...game.guesses, {word: word, colors: cheatColors}];      
       updateGame(gameUpdate);
       if (gameUpdate.state === GAME_STATE.PLAYING)
-        setCheatModalIsOpen(true);
+        // The 200ms delay is a workaround for the same Android issue as in Hints modal above
+        setTimeout(() => setCheatModalIsOpen(true), 200);
       return;
     }
 
