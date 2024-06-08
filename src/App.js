@@ -71,7 +71,7 @@ function HelpModal({modalIsOpen, onModalClose}) {
     >
       <button className="Help-close" onClick={onModalClose}>x</button>
       <div>
-        <h2 align="Center">About wordle analyzer v1.0</h2>
+        <h2 align="Center">About wordle analyzer</h2>
         <p>This app will help you learn to optimize your wordle play. A few key concepts:</p>
         <ol>
           <li>Wordle starts with a random word from a fixed list of possible answers, which are common words and never plurals.</li>
@@ -85,6 +85,7 @@ function HelpModal({modalIsOpen, onModalClose}) {
           <li><b>Hints</b> - After each guess, you can get hints and the chance for a redo</li>
           <li><b>Cheat</b> - Assists in an external online puzzle; you enter your guess and the colors you got back and get hints</li>
         </ul>
+        <p>Wordle analyzer version: 1.1</p>
       </div>
     </Modal>
   );
