@@ -1,11 +1,11 @@
 :root {
-  --main-bg-color: #090909;
-  --main-text-color: #FFFFFF;
-  --min-screen-width: 380px;
-  --green: #007700;
-  --yellow: #C0C000;
-  --grey: #303030;
-  --light-grey: #808080;
+  --main-bg-color: #FFFFFF;
+  --main-text-color: #090909;
+  --min-screen-width: 360px;
+  --green: #00CC00;
+  --yellow: #FFFF00;
+  --grey: #AAAAAA;
+  --light-grey: #CCCCCC;
 }
 
 .App {
@@ -35,6 +35,7 @@
   width: 90vw;
   padding: 10px;
   margin: auto;
+  border: 1px solid var(--main-text-color);
 }
 
 .Help-close {
@@ -70,6 +71,14 @@
 .Keyboard {
   margin: 0 auto;
   width: var(--min-screen-width);
+}
+
+@media (max-width: 360px) {
+  .Keyboard {
+    width: 100%;
+    transform: scale(0.9);
+    transform-origin: center top;
+  }
 }
 
 .react-simple-keyboard {

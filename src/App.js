@@ -8,13 +8,9 @@ import Modal from 'react-modal';
 import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
 import './App.css';
-import { SignInButton, SignOutButton, Authenticated, Unauthenticated, AuthProviderAppWrapper } from "./MsalSignin";
 import { newGame, guess, analyze, topGuesses, COLORS, GAME_STATE, analyzeCheat } from "./gameEngine.js"
 import { allowedGuesses, possibleAnswers } from './wordleWords.js';
 
-// Configuration variables
-const APP_NAME = "Wordle Analyzer";
-const LOGO = `${process.env.PUBLIC_URL}/logo.png`;
 
 // The names of the CSS classes for the different tile colors
 const TILE_CLASS_NAMES = {
@@ -33,25 +29,6 @@ const GAME_MODES = {
 
 Modal.setAppElement('#root');   // For accessibility
 
-/**
- * SignInHeader: A header for the sign-in page, with app logo, name, and a sign-in button
- * 
- * @param {string} logo - The URL of the app logo
- * @param {string} appName - The name of the app
- * 
- * @returns {JSX.Element} The app header
- */
-function SignInHeader({logo, appName}) {
-  return (
-    <div className="Signin-header">
-      <img src={logo} alt="logo" className="App-logo" />
-      <h1>{appName}</h1>
-      <div className="Sign-out-button">
-        <SignInButton />
-      </div>
-    </div>      
-  );
-}
 
 /**
  * A modal dialog for help
@@ -75,7 +52,13 @@ function HelpModal({modalIsOpen, onModalClose}) {
         <p>This app will help you learn to optimize your wordle play. A few key concepts:</p>
         <ol>
           <li>Wordle starts with a random word from a fixed list of possible answers, which are common words and never plurals.</li>
-          <li>The set of remaining possible answers shrinks as you make guesses and get back colors; green = right letter right spot, yellow=right letter wrong spot, grey=wrong letter.</li>
+          <li>The set of remaining possible answers shrinks as you make guesses and get back colors;
+            <ul>
+            <li> <span className="Green-background">green</span>: right letter, right spot</li>
+            <li> <span className="Yellow-background">yellow</span>: right letter, wrong spot</li>
+            <li> <span className="Grey-background">grey</span>: wrong letter</li>
+            </ul>
+          </li>
           <li>An optimal guess will, on average, shrink the number of remaining answers the most.
             For example, if the remaining answers are [CRANE, CRANK, CRAVE, CRAMP, and CRAZY], then CRAVE as it will either be right or there will only be 1 remaining answer left.</li>
         </ol>
@@ -363,7 +346,7 @@ function Grid({ guessed, word, shake, cheatColors, setCheatColors }) {
           {guessed.map((guess, i) => (
             <tr key={i}>
               {guess.colors.map((color, j) => (
-                <td key={j} className={TILE_CLASS_NAMES[color]}>{guess.word[j].toUpperCase()}</td>
+                <td key={j} className={TILE_CLASS_NAMES[color]}><b>{guess.word[j].toUpperCase()}</b></td>
               ))}
             </tr>
           ))}
@@ -373,7 +356,7 @@ function Grid({ guessed, word, shake, cheatColors, setCheatColors }) {
             <tr>
               {paddedWord.split("").map((letter, i) => (
                 <td onClick={setCheatColors ? () => onColorsSet(i) : null}
-                  className={TILE_CLASS_NAMES[cheatColors[i]]} key={i}>{letter}</td>
+                  className={TILE_CLASS_NAMES[cheatColors[i]]} key={i}><b>{letter}</b></td>
               ))}
             </tr>
           }
@@ -540,33 +523,27 @@ function Wordle() {
 
   return (
     <div className="App">
-      <Authenticated>
-        <div className="App-header">
-          <button title="Start a new game" onClick={() => startNewGame()}>New Game</button>
-          <select title="Toggle play mode - see help for details" value={gameMode} onChange={event => changeGameMode(event.target.value)}>
-            <option value={GAME_MODES.HINTS}>{GAME_MODES.HINTS}</option>
-            <option value={GAME_MODES.NO_HINTS}>{GAME_MODES.NO_HINTS}</option>
-            <option value={GAME_MODES.CHEAT}>{GAME_MODES.CHEAT}</option>
-          </select>
-          <button title="Learn about the wordle analyzer" onClick={() => setHelpModalIsOpen(true)}>Help</button>
-          <SignOutButton />
-        </div>
-        <p className="error-message">{game.error || ""}</p>
-        <Grid guessed={game.guesses} word={word} shake={game.error}
-          cheatColors={cheatColors} setCheatColors={gameMode === GAME_MODES.CHEAT ? setCheatColors : null}/>
-        <br />
-        {game.state === GAME_STATE.PLAYING && <MobileKeyboard
-            setKeyboardRef={setKeyboardRef}
-            onChange={handleWordChange} onEnter={handleWordEntered} guessedButtons={guessedButtons}/>}
-        {game.state === GAME_STATE.LOST && <p>You lost. The word was {game.solution.toUpperCase()}</p>}
-        {game.state === GAME_STATE.WON && <p>You Won!</p>}
-        <HelpModal modalIsOpen={helpModalIsOpen} onModalClose={() => setHelpModalIsOpen(false)}/>
-        <HintsModal modalIsOpen={hintsModalIsOpen} onModalClose={() => setHintsModalIsOpen(false)} game={game} word={word} onSubmit={updateGame}/>
-        <CheatModal modalIsOpen={cheatModalIsOpen} onModalClose={() => setCheatModalIsOpen(false)} game={game}/>
-      </Authenticated>
-      <Unauthenticated>
-        <SignInHeader logo={LOGO} appName={APP_NAME} />
-      </Unauthenticated>
+      <div className="App-header">
+        <button title="Start a new game" onClick={() => startNewGame()}>New Game</button>
+        <select title="Toggle play mode - see help for details" value={gameMode} onChange={event => changeGameMode(event.target.value)}>
+          <option value={GAME_MODES.HINTS}>{GAME_MODES.HINTS}</option>
+          <option value={GAME_MODES.NO_HINTS}>{GAME_MODES.NO_HINTS}</option>
+          <option value={GAME_MODES.CHEAT}>{GAME_MODES.CHEAT}</option>
+        </select>
+        <button title="Learn about the wordle analyzer" onClick={() => setHelpModalIsOpen(true)}>Help</button>
+      </div>
+      <p className="error-message">{game.error || ""}</p>
+      <Grid guessed={game.guesses} word={word} shake={game.error}
+        cheatColors={cheatColors} setCheatColors={gameMode === GAME_MODES.CHEAT ? setCheatColors : null}/>
+      <br />
+      {game.state === GAME_STATE.PLAYING && <MobileKeyboard
+          setKeyboardRef={setKeyboardRef}
+          onChange={handleWordChange} onEnter={handleWordEntered} guessedButtons={guessedButtons}/>}
+      {game.state === GAME_STATE.LOST && <p>You lost. The word was {game.solution.toUpperCase()}</p>}
+      {game.state === GAME_STATE.WON && <p>You Won!</p>}
+      <HelpModal modalIsOpen={helpModalIsOpen} onModalClose={() => setHelpModalIsOpen(false)}/>
+      <HintsModal modalIsOpen={hintsModalIsOpen} onModalClose={() => setHintsModalIsOpen(false)} game={game} word={word} onSubmit={updateGame}/>
+      <CheatModal modalIsOpen={cheatModalIsOpen} onModalClose={() => setCheatModalIsOpen(false)} game={game}/>
     </div>
   );
 }
@@ -578,9 +555,7 @@ function Wordle() {
  */
 function App() {
   return (
-    <AuthProviderAppWrapper>
-      <Wordle />
-    </AuthProviderAppWrapper>
+    <Wordle />
   );
 }
 
