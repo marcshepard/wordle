@@ -401,13 +401,23 @@ function Wordle() {
 
   // Calculate guessed button colors to pass to the virtual keyboard
   const guessedButtons = {green: [], yellow: [], grey: []};
-  for (const guess of game.guesses) {
+  for (const guess of game.guesses) { // Green if any guess of that letter got green
     for (let i = 0; i < 5; i++) {
       if (guess.colors[i] === COLORS.GREEN) {
         guessedButtons.green.push(guess.word[i].toUpperCase());
-      } else if (guess.colors[i] === COLORS.YELLOW) {
+      }
+    }
+  }
+  for (const guess of game.guesses) {
+    for (let i = 0; i < 5; i++) { // Yellow if any guess of that letter got yellow and is not green
+      if (guess.colors[i] === COLORS.YELLOW && !guessedButtons.green.includes(guess.word[i].toUpperCase())) {
         guessedButtons.yellow.push(guess.word[i].toUpperCase());
-      } else if (guess.colors[i] === COLORS.GREY) {
+      }
+    }
+  }
+  for (const guess of game.guesses) {
+    for (let i = 0; i < 5; i++) { // If it was guessed and never green or yellow, then color it grey
+      if (guess.colors[i] === COLORS.GREY && !guessedButtons.green.includes(guess.word[i].toUpperCase()) && !guessedButtons.yellow.includes(guess.word[i].toUpperCase())) {
         guessedButtons.grey.push(guess.word[i].toUpperCase());
       }
     }
