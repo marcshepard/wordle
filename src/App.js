@@ -75,7 +75,7 @@ function HelpModal({modalIsOpen, onModalClose}) {
 }
 
 /**
- * A modal dialog for chaat hints, displayed after they have entered their previous guess
+ * A modal dialog for cheat hints, displayed after they have entered their previous guess
  * 
  * @param {boolean} modalIsOpen - If the modal is open or not
  * @param {function} onModalClose - Callback when the modal is closed

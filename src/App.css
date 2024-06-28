@@ -1,7 +1,7 @@
 :root {
   --main-bg-color: #FFFFFF;
   --main-text-color: #090909;
-  --min-screen-width: 360px;
+  --default-screen-width: 380px;
   --green: #00CC00;
   --yellow: #FFFF00;
   --grey: #AAAAAA;
@@ -17,7 +17,7 @@
   text-align: center;
   padding-left: 5px;
   padding-right: 5px;
-  min-width: var(--min-screen-width);
+  min-width: var(--default-screen-width);
 }
 
 .App-header {
@@ -70,13 +70,14 @@
 
 .Keyboard {
   margin: 0 auto;
-  width: var(--min-screen-width);
+  width: var(--default-screen-width);
+  font-weight: bold;
 }
 
-@media (max-width: 360px) {
+@media (max-width: 389px) {
   .Keyboard {
     width: 100%;
-    transform: scale(0.9);
+    transform: scale(0.95);
     transform-origin: center top;
   }
 }
@@ -116,11 +117,12 @@
 }
 
 .Letter-tile {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   text-align: center;
   vertical-align: middle;
   border-spacing: 5px;
+  font-size: 150%;
 }
 
 .Green-background {
